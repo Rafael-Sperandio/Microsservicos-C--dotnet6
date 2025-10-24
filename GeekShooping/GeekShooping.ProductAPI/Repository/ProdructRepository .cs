@@ -24,7 +24,7 @@ namespace GeekShooping.ProductAPI.Repository
 
         public async Task<ProductDto?> GetById(long id)
         {
-            Product product = await _contex.Products.Where(p => p.id == id).FirstOrDefaultAsync();
+            Product product = await _contex.Products.Where(p => p.Id == id).FirstOrDefaultAsync();
             return _mapper.Map<ProductDto>(product);
         }
 
@@ -50,7 +50,7 @@ namespace GeekShooping.ProductAPI.Repository
         {
             try
             {
-                Product product = await _contex.Products.Where(p => p.id == id).FirstOrDefaultAsync();
+                Product product = await _contex.Products.Where(p => p.Id == id).FirstOrDefaultAsync();
                 if (product ==null) return false;
                 _contex.Remove(product);
                 await _contex.SaveChangesAsync();

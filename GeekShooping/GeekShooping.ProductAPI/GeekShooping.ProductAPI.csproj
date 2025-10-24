@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <Folder Include="Data\ValueObject\" />
+    <Folder Include="Migrations\" />
   </ItemGroup>
 
 </Project>
