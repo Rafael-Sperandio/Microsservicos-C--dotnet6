@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Duende.IdentityServer;
 using Duende.IdentityServer.Models;
 using Duende.IdentityServer.Services;
+using GeekShooping.IdentityServer.Initializer;
 
 
 namespace GeekShoping.IdentityServer
@@ -26,26 +27,32 @@ namespace GeekShoping.IdentityServer
                 .AddEntityFrameworkStores<MySQLContext>()
                 .AddDefaultTokenProviders();
             // ===== 3. Configuração do Duende IdentityServer =====
-            builder.Services.AddIdentityServer(options =>
-                {
-                    options.Events.RaiseErrorEvents = true;
-                    options.Events.RaiseInformationEvents = true;
-                    options.Events.RaiseFailureEvents = true;
-                    options.Events.RaiseSuccessEvents = true;
-                    options.EmitStaticAudienceClaim = true;
+            var builderServices = builder.Services.AddIdentityServer(options =>
+            {
+                options.Events.RaiseErrorEvents = true;
+                options.Events.RaiseInformationEvents = true;
+                options.Events.RaiseFailureEvents = true;
+                options.Events.RaiseSuccessEvents = true;
+                options.EmitStaticAudienceClaim = true;
+            })
+                .AddInMemoryIdentityResources(IdentityConfiguration.IdentityResources)
+                .AddInMemoryApiScopes(IdentityConfiguration.ApiScopes)
+                .AddInMemoryClients(IdentityConfiguration.Clients)
+                .AddAspNetIdentity<ApplicationUser>();// <-- integra Identity do ASP.NET Core
 
-                })
-                .AddAspNetIdentity<ApplicationUser>() // <-- integra Identity do ASP.NET Core
-                .AddInMemoryIdentityResources(IdentityConfigurantion.IdentityResources)
-                .AddInMemoryApiScopes(IdentityConfigurantion.ApiScopes)
-                .AddInMemoryClients(IdentityConfigurantion.Clients)
-                .AddDeveloperSigningCredential(); // apenas para desenvolvimento
+            builder.Services.AddScoped<IDbInitializer, DbInitializer>();//inicializador de roles e user do db
 
+            builderServices.AddDeveloperSigningCredential();// apenas para desenvolvimento
+
+            //builder.Services.Ide.AddDeveloperSigningCredential(); // apenas para desenvolvimento
             // ===== 4. MVC (Controllers + Views) =====
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
             var app = builder.Build();
+            //create initializer
+            var initializer = app.Services.CreateScope().ServiceProvider.GetService<IDbInitializer>();
+
 
             // ===== 5. Pipeline HTTP =====
             // Configure the HTTP request pipeline.
@@ -61,6 +68,9 @@ namespace GeekShoping.IdentityServer
             // Importante: ordem correta — IdentityServer antes de Authorization
             app.UseIdentityServer();
             app.UseAuthorization();
+
+            //gerar tabelas em bancos 
+            initializer.Initialize();
 
             app.MapControllerRoute(
                 name: "default",

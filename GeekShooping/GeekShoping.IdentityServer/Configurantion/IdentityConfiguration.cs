@@ -3,7 +3,7 @@ using Duende.IdentityServer.Models;
 
 namespace GeekShoping.IdentityServer.Configurantion
 {
-    public static class IdentityConfigurantion
+    public static class IdentityConfiguration
     {
         public const string Admin = "Admin";
         public const string Client = "Client";
