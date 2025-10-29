@@ -6,7 +6,7 @@ namespace GeekShoping.IdentityServer.Configurantion
     public static class IdentityConfigurantion
     {
         public const string Admin = "Admin";
-        public const string Customer = "Customer";
+        public const string Client = "Client";
 
         public static IEnumerable<IdentityResource> IdentityResources =>
             new List<IdentityResource>
@@ -40,9 +40,11 @@ namespace GeekShoping.IdentityServer.Configurantion
                     ClientId = "geek_shopping",
                     ClientSecrets = { new Secret("my_super_secret".Sha256()) },
                     AllowedGrantTypes = GrantTypes.Code,
-                    RedirectUris = {"http://localhost:34198/singin-oidc"},
+                    RedirectUris = {"https://localhost:4430/singin-oidc"},
+                    //RedirectUris = {"http://localhost:34198/singin-oidc"},
                     //geekShopping.web launchsetings applicationUrl
-                    PostLogoutRedirectUris = {"http://localhost:34198/singout-callback-oidc" },
+                    PostLogoutRedirectUris = {"https://localhost:4430/singout-callback-oidc" },
+                    //PostLogoutRedirectUris = {"https://localhost:34198/singout-callback-oidc" },
                     AllowedScopes =  new List<string>
                     {
                         IdentityServerConstants.StandardScopes.OpenId,
