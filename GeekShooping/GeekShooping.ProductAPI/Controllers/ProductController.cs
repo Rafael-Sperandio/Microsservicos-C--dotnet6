@@ -1,6 +1,8 @@
 using GeekShooping.ProductAPI.Data.Dto;
 using GeekShooping.ProductAPI.Model;
 using GeekShooping.ProductAPI.Repository;
+using GeekShoping.Web.Utils;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GeekShooping.ProductAPI.Controllers
@@ -18,6 +20,7 @@ namespace GeekShooping.ProductAPI.Controllers
         }
 
         [HttpGet("{id:long}")]
+        [Authorize]
         public async Task<ActionResult<ProductDto>> Get(long id)
         {
             var product= await _repository.GetById(id);
@@ -26,6 +29,7 @@ namespace GeekShooping.ProductAPI.Controllers
         }
 
         [HttpGet("")]
+
         public async Task<ActionResult<IEnumerable<ProductDto>>> GetAll()
         {
             var products = await _repository.GetAll();
@@ -33,20 +37,27 @@ namespace GeekShooping.ProductAPI.Controllers
         }
 
         [HttpPost("")]
+        [Authorize]
+
         public async Task<ActionResult<ProductDto>> Create(ProductDto dto)
         {
             if (dto == null) return BadRequest("Produto nulo");
             var product = await _repository.Create(dto);
             return Ok(product);
         }
+
         [HttpPut("")]
+        [Authorize]
+
         public async Task<ActionResult<ProductDto>> Update(ProductDto dto)
         {
             if (dto == null) return BadRequest("Produto nulo");
             var product = await _repository.Upddate(dto);
             return Ok(product);
         }
+
         [HttpDelete("{id:long}")]
+        [Authorize(Roles = Role.Admin)]
         public async Task<ActionResult<ProductDto>> Delete(long id)
         {
             var deletado = await _repository.Delete(id);
