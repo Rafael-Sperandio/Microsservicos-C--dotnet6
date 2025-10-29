@@ -41,10 +41,7 @@ namespace GeekShoping.IdentityServer.Configurantion
                     ClientSecrets = { new Secret("my_super_secret".Sha256()) },
                     AllowedGrantTypes = GrantTypes.Code,
                     RedirectUris = {"https://localhost:4430/singin-oidc"},
-                    //RedirectUris = {"http://localhost:34198/singin-oidc"},
-                    //geekShopping.web launchsetings applicationUrl
                     PostLogoutRedirectUris = {"https://localhost:4430/singout-callback-oidc" },
-                    //PostLogoutRedirectUris = {"https://localhost:34198/singout-callback-oidc" },
                     AllowedScopes =  new List<string>
                     {
                         IdentityServerConstants.StandardScopes.OpenId,
