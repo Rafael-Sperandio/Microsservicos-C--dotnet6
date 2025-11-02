@@ -26,7 +26,8 @@ namespace GeekShoping.Web
                 .AddCookie("Cookies", c => c.ExpireTimeSpan = TimeSpan.FromMinutes(10))
                 .AddOpenIdConnect("oidc", options =>
                 {
-                    options.Authority = builder.Configuration["ServiceUrls:IdentityServer"];
+                    options.Authority = "https://localhost:4435";
+                    //builder.Configuration["ServiceUrls:IdentityServer"];
                     options.GetClaimsFromUserInfoEndpoint = true;
                     options.ClientId = "geek_shopping";
                     options.ClientSecret = "my_super_secret"; //pode ser alterado para buscar do appsetings ou outro arquivo
