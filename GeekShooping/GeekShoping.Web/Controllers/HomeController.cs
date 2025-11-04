@@ -16,6 +16,7 @@ namespace GeekShoping.Web.Controllers
 
         public IActionResult Index()
         {
+            var str = nameof(Index);
             return View();
         }
 
@@ -38,7 +39,7 @@ namespace GeekShoping.Web.Controllers
 
         public IActionResult Logout()
         {
-            return SignOut("Cookies", "oicd");
+            return SignOut("Cookies", "oidc");
         }
     }
 }

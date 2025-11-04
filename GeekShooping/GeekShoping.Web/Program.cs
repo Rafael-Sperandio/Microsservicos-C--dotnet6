@@ -13,7 +13,7 @@ namespace GeekShoping.Web
 
 
             builder.Services.AddHttpClient<IProductService, ProductService>(c =>
-                    c.BaseAddress = new Uri(builder.Configuration["SeviceUrls:ProductAPI"])
+                    c.BaseAddress = new Uri(builder.Configuration["ServiceUrls:ProductAPI"])
                 );
 
             // Add services to the container.
