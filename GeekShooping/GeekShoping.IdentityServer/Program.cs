@@ -1,12 +1,11 @@
+using Duende.IdentityServer.Services;
+using GeekShooping.IdentityServer.Initializer;
 using GeekShoping.IdentityServer.Configurantion;
 using GeekShoping.IdentityServer.DbModel;
 using GeekShoping.IdentityServer.DbModel.Context;
+using GeekShopping.IdentityServer.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Duende.IdentityServer;
-using Duende.IdentityServer.Models;
-using Duende.IdentityServer.Services;
-using GeekShooping.IdentityServer.Initializer;
 
 
 namespace GeekShoping.IdentityServer
@@ -41,6 +40,7 @@ namespace GeekShoping.IdentityServer
                 .AddAspNetIdentity<ApplicationUser>();// <-- integra Identity do ASP.NET Core
 
             builder.Services.AddScoped<IDbInitializer, DbInitializer>();//inicializador de roles e user do db
+            builder.Services.AddScoped<IProfileService, ProfileService>();
 
             builderServices.AddDeveloperSigningCredential();// apenas para desenvolvimento
 
