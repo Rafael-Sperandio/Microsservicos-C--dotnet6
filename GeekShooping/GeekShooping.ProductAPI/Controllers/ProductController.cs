@@ -29,7 +29,7 @@ namespace GeekShooping.ProductAPI.Controllers
         }
 
         [HttpGet("")]
-
+        //não precisa de authorização
         public async Task<ActionResult<IEnumerable<ProductDto>>> GetAll()
         {
             var products = await _repository.GetAll();
