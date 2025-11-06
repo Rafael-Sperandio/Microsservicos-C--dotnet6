@@ -1,31 +1,33 @@
 using AutoMapper;
-using GeekShooping.ProductAPI.Config.MappingConfig;
-using GeekShooping.ProductAPI.Model.Context;
-using GeekShooping.ProductAPI.Repository;
+using GeekShooping.CartAPI.Config.MappingConfig;
+using GeekShopping.CartAPI.Model.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
-namespace GeekShooping.ProductAPI
+namespace GeekShopping.CartAPI
 {
     public class Program
     {
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-            //("MySQLConection:MySQLConnectionString"
-            //builder.Configuration.GetConnectionString("DefaultConnection");
+
+            //inicio do copia cola
+
             var connection = builder.Configuration.GetConnectionString("MySQLConnection");
             builder.Services.AddDbContext<MySQLContext>(options =>
                        options.UseMySql(connection,
-                            new MySqlServerVersion(new Version(8,0,44))));
+                            new MySqlServerVersion(new Version(8, 0, 44))));
             //UseSqlServer(connection)
             // Add services to the container.
 
             IMapper mapper = MappingConfig.RegisterMaps().CreateMapper();
             builder.Services.AddSingleton(mapper);
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-            builder.Services.AddScoped< IProdructRepository, ProdructRepository>();
+
+
+            //builder.Services.AddScoped<IProdructRepository, ProdructRepository>();
 
             builder.Services.AddControllers();
 
@@ -57,7 +59,7 @@ namespace GeekShooping.ProductAPI
 
             builder.Services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "GeekShopping.ProductAPI", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "GeekShopping.CartAPI", Version = "v1" });
                 c.EnableAnnotations();
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
@@ -87,6 +89,10 @@ namespace GeekShooping.ProductAPI
                  });
             });
 
+            //fim copia cola
+
+
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -95,8 +101,8 @@ namespace GeekShooping.ProductAPI
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-            app.UseHttpsRedirection();
 
+            app.UseHttpsRedirection();
             app.UseRouting();
 
             app.UseAuthentication();
