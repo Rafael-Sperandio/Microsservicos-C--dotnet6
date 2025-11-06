@@ -1,4 +1,5 @@
 ﻿using GeekShooping.CartAPI.Model;
+using GeekShooping.CartAPI.Model.Base;
 using Microsoft.EntityFrameworkCore;
 
 namespace GeekShopping.CartAPI.Model.Context
@@ -10,8 +11,12 @@ namespace GeekShopping.CartAPI.Model.Context
         {
 
         }
-        public DbSet<Product> Products { get; set;}
-        
+        public DbSet<Product> Products { get; set; }
+        public DbSet<CartHeader> CartHeaders { get; set; }
+        public DbSet<CartDetail> CartDetails { get; set; }
+
+
+
 
 
     }
