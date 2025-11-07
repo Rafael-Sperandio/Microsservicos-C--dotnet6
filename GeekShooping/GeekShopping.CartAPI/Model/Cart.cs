@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GeekShooping.CartAPI.Model.Base
 {
-    [Table("cart")]
+    //[Table("cart")]
     public class Cart : BaseEntity
     {
 
