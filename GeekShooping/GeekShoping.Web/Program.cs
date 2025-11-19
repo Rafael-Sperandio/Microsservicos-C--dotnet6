@@ -1,6 +1,7 @@
 using GeekShoping.Web.Services.IServices;
 using GeekShopping.Web.Services;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.IdentityModel.Tokens;
 
 namespace GeekShoping.Web
 {
@@ -17,7 +18,7 @@ namespace GeekShoping.Web
                 );
 
             builder.Services.AddHttpClient<ICartService, CartService>(c =>
-                    c.BaseAddress = new Uri(builder.Configuration["ServiceUrls:CartAPI"])
+                c.BaseAddress = new Uri(builder.Configuration["ServiceUrls:CartAPI"])
                 );
 
 
@@ -32,17 +33,30 @@ namespace GeekShoping.Web
                 .AddOpenIdConnect("oidc", options =>
                 {
                     options.Authority = "https://localhost:4435";
-                    //builder.Configuration["ServiceUrls:IdentityServer"];
-                    options.GetClaimsFromUserInfoEndpoint = true;
                     options.ClientId = "geek_shopping";
                     options.ClientSecret = "my_super_secret"; //pode ser alterado para buscar do appsetings ou outro arquivo
                     options.ResponseType = "code";
+
+                    options.GetClaimsFromUserInfoEndpoint = true;
+
                     options.ClaimActions.MapJsonKey("role", "role", "role");
                     options.ClaimActions.MapJsonKey("sub", "sub", "sub");
                     options.TokenValidationParameters.NameClaimType = "name";
                     options.TokenValidationParameters.RoleClaimType = "role";
-                    options.Scope.Add("geek_shopping");
+
+
+                    options.Scope.Clear();
+                    options.Scope.Add("openid");
+                    options.Scope.Add("profile");
+                    options.Scope.Add("email");
+                    options.Scope.Add("geek_shopping"); // esse é o scope que as APIs exigem
+                    options.Scope.Add("offline_access");
                     options.SaveTokens = true;
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        NameClaimType = "name",
+                        RoleClaimType = "role"
+                    };
                 });
 
             var app = builder.Build();

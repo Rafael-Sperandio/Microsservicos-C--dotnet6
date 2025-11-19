@@ -47,7 +47,8 @@ namespace GeekShoping.Web.Controllers
             {
                 CartHeader = new CartHeaderViewModel
                 {
-                    UserId = User.Claims.Where(u => u.Type == "sub")?.FirstOrDefault()?.Value
+                    UserId = User.Claims.Where(u => u.Type == "sub")?.FirstOrDefault()?.Value,
+                    CouponCode = "",
                 }
             };
 
@@ -55,7 +56,8 @@ namespace GeekShoping.Web.Controllers
             {
                 Count = model.Count,
                 ProductId = model.Id,
-                Product = await _productService.GetProductById(model.Id, token)
+                Product = await _productService.GetProductById(model.Id, token),
+                CartHeader = cart.CartHeader
             };
 
             List<CartDetailViewModel> cartDetails = new List<CartDetailViewModel>();

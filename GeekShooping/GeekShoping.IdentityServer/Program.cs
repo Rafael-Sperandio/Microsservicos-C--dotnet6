@@ -35,6 +35,7 @@ namespace GeekShoping.IdentityServer
                 options.EmitStaticAudienceClaim = true;
             })
                 .AddInMemoryIdentityResources(IdentityConfiguration.IdentityResources)
+                .AddInMemoryApiResources(IdentityConfiguration.ApiResources)
                 .AddInMemoryApiScopes(IdentityConfiguration.ApiScopes)
                 .AddInMemoryClients(IdentityConfiguration.Clients)
                 .AddAspNetIdentity<ApplicationUser>();// <-- integra Identity do ASP.NET Core

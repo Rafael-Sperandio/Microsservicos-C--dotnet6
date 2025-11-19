@@ -1,7 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace GeekShooping.CartAPI.Data.Dto
+﻿namespace GeekShooping.CartAPI.Data.Dto
 {
 
     public class CartDto 

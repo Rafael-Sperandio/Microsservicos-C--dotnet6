@@ -44,7 +44,7 @@ namespace GeekShopping.CartAPI.Repository
         {
             try
             {
-                
+
                 CartDetail cartDetail = await _context.CartDetails
                     .FirstOrDefaultAsync(c => c.Id == cartDetailsId);
 
@@ -70,15 +70,20 @@ namespace GeekShopping.CartAPI.Repository
 
         public async Task<CartDto> GetCartByUserId(string userId)
         {
+            var header = await _context.CartHeaders
+                            .FirstOrDefaultAsync(c => c.UserId == userId);
+
+            if (header == null)
+                return new CartDto(); // retorna carrinho vazio (ou null, se preferir)
             Cart cart = new()
             {
-                CartHeader = await _context.CartHeaders
-                    .FirstOrDefaultAsync(c => c.UserId == userId),
+                CartHeader = header,
+                CartDetails = await _context.CartDetails
+                    .Where(c => c.CartHeaderId == header.Id)
+                    .Include(c => c.Product)
+                    .ToListAsync()
             };
-            cart.CartDetails = _context.CartDetails
-                .Where(c => c.CartHeaderId == cart.CartHeader.Id)
-                    .Include(c => c.Product);
-            return _mapper.Map<CartDto >(cart);
+            return _mapper.Map<CartDto>(cart);
         }
 
         public async Task<bool> RemoveCoupon(string userId)
@@ -86,10 +91,10 @@ namespace GeekShopping.CartAPI.Repository
             throw new NotImplementedException();
         }
 
-/*        public async Task<bool> UpdateCart(CartDto cartDto)
-        {
-            throw new NotImplementedException();
-        }*/
+        /*        public async Task<bool> UpdateCart(CartDto cartDto)
+                {
+                    throw new NotImplementedException();
+                }*/
 
         //metodo esta fazendo save e Update o que acaba gerando confusão
         //TODO correto seriar serparar em duas partes save e Update
@@ -104,8 +109,17 @@ namespace GeekShopping.CartAPI.Repository
             // Se o produto não existir no banco, ele é adicionado
             if (product == null)
             {
-                _context.Products.Add(cart.CartDetails.FirstOrDefault().Product);
-                await _context.SaveChangesAsync(); // Salva o novo produto no banco
+                var newProduct = cart.CartDetails.FirstOrDefault().Product;
+                _context.Products.Add(newProduct);
+                await _context.SaveChangesAsync();
+
+                // Atualiza o ID do produto dentro do CartDetail
+                cart.CartDetails.FirstOrDefault().ProductId = newProduct.Id;
+            }
+            else
+            {
+                // Se o produto já existia, usa o ID real do banco
+                cart.CartDetails.FirstOrDefault().ProductId = product.Id;
             }
 
             // --- ETAPA 2: Verifica se o usuário já possui um CartHeader (cabeçalho do carrinho) ---
@@ -118,54 +132,60 @@ namespace GeekShopping.CartAPI.Repository
             if (cartHeader == null)
             {
                 // Cria o cabeçalho do carrinho (CartHeader)
-                _context.CartHeaders.Add(cart.CartHeader);
+                var newHeader = cart.CartHeader;
+                _context.CartHeaders.Add(newHeader);
                 await _context.SaveChangesAsync();
 
-                // Define a relação entre o detalhe do carrinho e o cabeçalho recém-criado
-                cart.CartDetails.FirstOrDefault().CartHeaderId = cart.CartHeader.Id;
+                // Usa o ID real do banco
+                var headerId = newHeader.Id;
 
-                // Remove a referência direta ao produto (para evitar erro de referência circular no EF)
-                cart.CartDetails.FirstOrDefault().Product = null;
+                // Define o relacionamento corretamente
+                var newDetail = cart.CartDetails.FirstOrDefault();
+                newDetail.CartHeaderId = headerId;
+                newDetail.CartHeader = null;
+                newDetail.Product = null;
 
-                // Adiciona o item (CartDetail) ao banco de dados
-                _context.CartDetails.Add(cart.CartDetails.FirstOrDefault());
+                // Agora sim adiciona o detalhe
+                _context.CartDetails.Add(newDetail);
                 await _context.SaveChangesAsync();
             }
             else
             {
-                // --- ETAPA 4: Se o  cabesalho do carrinho do usuário já existe ---
-                // Verifica se o produto que está sendo adicionado já existe dentro desse carrinho
+                // Verifica se o produto já existe no carrinho
                 var cartDetail = await _context.CartDetails
                     .AsNoTracking()
                     .FirstOrDefaultAsync(p =>
                         p.ProductId == dto.CartDetails.FirstOrDefault().ProductId &&
                         p.CartHeaderId == cartHeader.Id);
 
-                // --- ETAPA 4.1: Se o produto ainda não estiver no carrinho ---
                 if (cartDetail == null)
                 {
-                    // Define o ID do cabeçalho existente
+                    // Atualiza referência de CartHeaderId corretamente
                     cart.CartDetails.FirstOrDefault().CartHeaderId = cartHeader.Id;
 
-                    // Evita regravação do produto inteiro (mantém apenas referência)
-                    cart.CartDetails.FirstOrDefault().Product = null;
+                    // Garante que o EF não tente criar um novo CartHeader
+                    cart.CartHeader = null;
 
-                    // Adiciona o novo item ao carrinho
+                    // Evita tentativa de inserir novamente o produto
+                    cart.CartDetails.FirstOrDefault().Product = null;
+                    cart.CartDetails.FirstOrDefault().CartHeader = null;
+
                     _context.CartDetails.Add(cart.CartDetails.FirstOrDefault());
                     await _context.SaveChangesAsync();
                 }
                 else
                 {
-                    // --- ETAPA 4.2: Se o produto já existir no carrinho ---
-                    // Atualiza a quantidade (soma com a anterior)
+                    // Atualiza quantidade se já existir
                     cart.CartDetails.FirstOrDefault().Product = null;
                     cart.CartDetails.FirstOrDefault().Count += cartDetail.Count;
 
-                    // Mantém o mesmo ID e CartHeaderId (para sobrescrever o item existente)
                     cart.CartDetails.FirstOrDefault().Id = cartDetail.Id;
                     cart.CartDetails.FirstOrDefault().CartHeaderId = cartDetail.CartHeaderId;
 
-                    // Atualiza o item existente no banco
+                    // Evita tentativa de inserir novamente o produto
+                    cart.CartDetails.FirstOrDefault().Product = null;
+                    cart.CartDetails.FirstOrDefault().CartHeader = null;
+
                     _context.CartDetails.Update(cart.CartDetails.FirstOrDefault());
                     await _context.SaveChangesAsync();
                 }

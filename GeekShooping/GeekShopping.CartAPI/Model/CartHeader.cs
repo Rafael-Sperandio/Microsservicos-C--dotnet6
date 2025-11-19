@@ -9,14 +9,13 @@ namespace GeekShooping.CartAPI.Model.Base
     [Table("cart_header")]
     public class CartHeader : BaseEntity
     {
-        
-        [Column("user_id")]
-        [Required]
-        public string UserId;
 
-        [Column("cupon_code")]
+        [Column("user_id")]
+        public string UserId { get; set; }
+
+        [Column("coupon_code")]
         [StringLength(500)]
-        public string CuponCode { get; set; }
+        public string CouponCode { get; set; }
 
     }
 }

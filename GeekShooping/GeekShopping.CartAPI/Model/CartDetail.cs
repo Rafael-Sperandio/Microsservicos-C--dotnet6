@@ -9,22 +9,21 @@ namespace GeekShooping.CartAPI.Model.Base
     [Table("cart_detail")]
     public class CartDetail : BaseEntity
     {
-        //pedido do carrinho especifico
+        //ajuste necesario para vincular a id a entidade
+        [Column("cart_header_id")]
         public long CartHeaderId { get; set; }
 
-        [ForeignKey("cart_header_id")]
-        public CartHeader CartHeader { get; set; }  
+        //ajuste necesario para vincular a id a entidade
+        [ForeignKey(nameof(CartHeaderId))]
+        public CartHeader CartHeader { get; set; }
 
-
+        [Column("product_id")]
         public long ProductId { get; set; }
 
-        [ForeignKey("product_id")]
+        [ForeignKey(nameof(ProductId))]
         public Product Product { get; set; }
-
 
         [Column("count")]
         public long Count { get; set; }
-
-
     }
 }

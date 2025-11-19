@@ -7,6 +7,7 @@ namespace GeekShooping.ProductAPI.Model.Base
     {
         [Key]
         [Column("id")]
-         public long Id {  get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public long Id {  get; set; }
     }
 }
