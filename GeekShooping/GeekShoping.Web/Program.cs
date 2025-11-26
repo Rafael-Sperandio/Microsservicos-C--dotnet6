@@ -20,7 +20,11 @@ namespace GeekShoping.Web
             builder.Services.AddHttpClient<ICartService, CartService>(c =>
                 c.BaseAddress = new Uri(builder.Configuration["ServiceUrls:CartAPI"])
                 );
-
+/*
+            builder.Services.AddHttpClient<ICouponService, CouponService>(c =>
+                c.BaseAddress = new Uri(builder.Configuration["ServiceUrls:CouponAPI"])
+                );
+*/
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
