@@ -18,9 +18,32 @@ namespace GeekShopping.CartAPI.Repository
             _mapper = mapper;
         }
 
-        public async Task<bool> ApplyCoupon(string userId, long couponCode)
+        public async Task<bool> ApplyCoupon(string userId, string couponCode)
         {
-            throw new NotImplementedException();
+            var cartHeader = await _context.CartHeaders
+                        .FirstOrDefaultAsync(c => c.UserId == userId);
+            if (cartHeader != null)
+            {
+                cartHeader.CouponCode = couponCode;
+                _context.CartHeaders.Update(cartHeader);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            return false;
+        }
+
+        public async Task<bool> RemoveCoupon(string userId)
+        {
+            var cartHeader = await _context.CartHeaders
+                        .FirstOrDefaultAsync(c => c.UserId == userId);
+            if (cartHeader != null)
+            {
+                cartHeader.CouponCode = string.Empty;
+                _context.CartHeaders.Update(cartHeader);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            return false;
         }
 
         public async Task<bool> ClearCart(string userId)
@@ -86,10 +109,7 @@ namespace GeekShopping.CartAPI.Repository
             return _mapper.Map<CartDto>(cart);
         }
 
-        public async Task<bool> RemoveCoupon(string userId)
-        {
-            throw new NotImplementedException();
-        }
+
 
         /*        public async Task<bool> UpdateCart(CartDto cartDto)
                 {

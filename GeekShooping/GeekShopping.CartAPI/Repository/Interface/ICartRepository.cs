@@ -12,7 +12,7 @@ namespace GeekShopping.CartAPI.Repository.Interface
 
         Task<bool> ClearCart(String userId);
 
-        Task<bool> ApplyCoupon(String userId, long couponCode);
+        Task<bool> ApplyCoupon(String userId, string couponCode);
 
         Task<bool> RemoveCoupon(String userId);
 

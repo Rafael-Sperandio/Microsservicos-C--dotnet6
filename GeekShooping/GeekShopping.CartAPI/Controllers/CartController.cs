@@ -1,4 +1,5 @@
 using GeekShooping.CartAPI.Data.Dto;
+using GeekShopping.CartAPI.Messages;
 using GeekShopping.CartAPI.Repository.Interface;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -37,6 +38,22 @@ namespace GeekShopping.CartAPI.Controllers
             return Ok(cart);
         }
 
+        [HttpPost("apply-coupon")]
+        public async Task<ActionResult<CartDto>> ApplyCoupon(CartDto dto)
+        {
+            var cart = await _repository.ApplyCoupon(dto.CartHeader.UserId,dto.CartHeader.CouponCode);
+            if (cart == null) return NotFound();
+            return Ok(cart);
+        }
+
+        [HttpPost("remove-coupon/{userId}")]
+        public async Task<ActionResult<CartDto>> RemoveCoupon(string userId)
+        {
+            var cart = await _repository.RemoveCoupon(userId);
+            if (cart == null) return NotFound();
+            return Ok(cart);
+        }
+
         [HttpPut("update-cart")]
         public async Task<ActionResult<CartDto>> UpdateCart(CartDto vo)
         {
@@ -51,6 +68,21 @@ namespace GeekShopping.CartAPI.Controllers
             var status = await _repository.DeleteFromCart(id);
             if (!status) return BadRequest();
             return Ok(status);
+        }
+
+        [HttpPost("checkout")]
+        public async Task<ActionResult<CheckoutHeaderDto>> Checkout(CheckoutHeaderDto dto)
+        {
+            if(dto?.UserId== null) return BadRequest();
+
+            var cart = await _repository.GetCartByUserId(dto.UserId);
+            if (cart == null) return NotFound();
+            dto.CartDetails = cart.CartDetails;
+            dto.DateTime = DateTime.Now;
+
+            //TASK RabbitMQ logic comes here!!!
+
+            return Ok(dto);
         }
     }
 }
