@@ -1,4 +1,5 @@
 ﻿using GeekShooping.CartAPI.Data.Dto;
+using GeekShopping.MessageBus;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace GeekShopping.CartAPI.Messages
 {
-    public class CheckoutHeaderDto
+    public class CheckoutHeaderDto : BaseMessage
     {
-        public long Id { get; set; }
+/*        public long Id { get; set; }*/
         public string UserId { get; set; }
         public string CouponCode { get; set; }
         public decimal PurchaseAmount { get; set; }
@@ -22,7 +23,7 @@ namespace GeekShopping.CartAPI.Messages
         public string CVV { get; set; }
         public string ExpiryMothYear { get; set; }
 
-        public int CartTotalItens { get; set; }
-        public IEnumerable<CartDetailDto> CartDetails { get; set; }
+        public int CartTotalItens { get; set; } = 0;
+        public IEnumerable<CartDetailDto> CartDetails { get; set; } = new List<CartDetailDto>();
     }
 }

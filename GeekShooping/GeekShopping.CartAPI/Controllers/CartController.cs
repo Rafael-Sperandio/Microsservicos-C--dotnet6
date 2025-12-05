@@ -1,10 +1,11 @@
 using GeekShooping.CartAPI.Data.Dto;
 using GeekShopping.CartAPI.Messages;
+using GeekShopping.CartAPI.RabbitMQSender;
 using GeekShopping.CartAPI.Repository.Interface;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
-namespace GeekShopping.CartAPI.Controllers
+namespace GeekShopping.CartAPI.Controllers 
 {
     [ApiController]
     [Route("api/v1/[controller]")]
@@ -13,13 +14,17 @@ namespace GeekShopping.CartAPI.Controllers
 
         private readonly ILogger<CartController> _logger;
         private ICartRepository _repository;
+        private IRabbitMQMessageSender _rabbitMQMessageSender;
 
 
-        public CartController(ILogger<CartController> logger, ICartRepository repository)
+        public CartController(ILogger<CartController> logger, ICartRepository repository, IRabbitMQMessageSender rabbitMQMessageSender)
         {
+
             _logger = logger;
             _repository = repository ?? throw new
                 ArgumentNullException(nameof(repository));
+            _rabbitMQMessageSender = rabbitMQMessageSender ?? throw new
+                ArgumentNullException(nameof(rabbitMQMessageSender));
         }
 
         [HttpGet("get-cart/{userId}")]
@@ -70,6 +75,7 @@ namespace GeekShopping.CartAPI.Controllers
             return Ok(status);
         }
 
+        //
         [HttpPost("checkout")]
         public async Task<ActionResult<CheckoutHeaderDto>> Checkout(CheckoutHeaderDto dto)
         {
@@ -80,7 +86,9 @@ namespace GeekShopping.CartAPI.Controllers
             dto.CartDetails = cart.CartDetails;
             dto.DateTime = DateTime.Now;
 
-            //TASK RabbitMQ logic comes here!!!
+            //RabbitMQ logic comes here!!!
+            _rabbitMQMessageSender.SendMessage(dto, "checkoutqueue");
+
 
             return Ok(dto);
         }
