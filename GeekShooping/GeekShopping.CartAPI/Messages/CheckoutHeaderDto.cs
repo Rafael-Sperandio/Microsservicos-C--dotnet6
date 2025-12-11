@@ -23,7 +23,8 @@ namespace GeekShopping.CartAPI.Messages
         public string CVV { get; set; }
         public string ExpiryMothYear { get; set; }
 
-        public int CartTotalItens { get; set; } = 0;
-        public IEnumerable<CartDetailDto> CartDetails { get; set; } = new List<CartDetailDto>();
+        public int CartTotalItens { get; set; } //= 0;
+        public IEnumerable<CartDetailDto> CartDetails { get; set; } 
+            //= new List<CartDetailDto>();
     }
 }

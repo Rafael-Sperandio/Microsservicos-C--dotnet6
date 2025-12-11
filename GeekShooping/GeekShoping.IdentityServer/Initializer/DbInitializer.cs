@@ -24,10 +24,10 @@ namespace GeekShooping.IdentityServer.Initializer
 
         public void Initialize()
         {
-            var temAdm = _role.FindByIdAsync(IdentityConfiguration.Admin).GetAwaiter().GetResult() == null 
+            var hasAdm = _role.FindByIdAsync(IdentityConfiguration.Admin).GetAwaiter().GetResult() == null 
                 && _role.FindByNameAsync(IdentityConfiguration.Admin).GetAwaiter().GetResult() == null;
 
-            if (temAdm)
+            if (hasAdm)
             {
                 //roles
                 _role.CreateAsync(new IdentityRole(IdentityConfiguration.Admin))
@@ -51,9 +51,9 @@ namespace GeekShooping.IdentityServer.Initializer
                     new Claim(JwtClaimTypes.Role,IdentityConfiguration.Admin),
                 }).Result;
             }
-            var temClient = _role.FindByIdAsync(IdentityConfiguration.Client).GetAwaiter().GetResult() == null
+            var hasClient = _role.FindByIdAsync(IdentityConfiguration.Client).GetAwaiter().GetResult() == null
                          && _role.FindByNameAsync(IdentityConfiguration.Client).GetAwaiter().GetResult() == null;
-            if (temClient)
+            if (hasClient)
             {
                 _role.CreateAsync(new IdentityRole(IdentityConfiguration.Client))
                     .GetAwaiter().GetResult();

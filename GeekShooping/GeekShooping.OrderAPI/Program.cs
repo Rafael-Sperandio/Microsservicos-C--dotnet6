@@ -1,15 +1,11 @@
-using AutoMapper;
-using GeekShooping.CartAPI.Config.MappingConfig;
-using GeekShopping.CartAPI.Model.Context;
-using GeekShopping.CartAPI.Repository.Interface;
 using GeekShopping.CartAPI.Repository;
+using GeekShopping.OrderAPI.MessageConsumer;
+using GeekShopping.OrderAPI.Model.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using GeekShopping.CartAPI.RabbitMQSender;
-using Microsoft.Extensions.DependencyInjection;
 
-namespace GeekShopping.CartAPI
+namespace GeekShooping.OrderAPI
 {
     public class Program
     {
@@ -23,21 +19,25 @@ namespace GeekShopping.CartAPI
             builder.Services.AddDbContext<MySQLContext>(options =>
                        options.UseMySql(connection,
                             new MySqlServerVersion(new Version(8, 0, 44))));
-            //UseSqlServer(connection)
+
+
+            //não são utilizados mappers
+            /*            IMapper mapper = MappingConfig.RegisterMaps().CreateMapper();
+                        builder.Services.AddSingleton(mapper);
+                        builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());*/
+
             // Add services to the container.
+            var dbBuild = new DbContextOptionsBuilder<MySQLContext>();
+            dbBuild.UseMySql(connection, new MySqlServerVersion(new Version(8, 0, 44)));
+            builder.Services.AddSingleton(new OrderRepository(dbBuild.Options));//ao invés de adicionar um repository como scopped
+                                                                                //builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+            
+            builder.Services.AddHostedService<RabbitMQCheckoutConsumer>();
 
-            IMapper mapper = MappingConfig.RegisterMaps().CreateMapper();
-            builder.Services.AddSingleton(mapper);
-            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-
-
-            builder.Services.AddScoped<ICartRepository, CartRepository>();
-            builder.Services.AddScoped<IRabbitMQMessageSender, RabbitMQMessageSender>();
 
             builder.Services.AddControllers();
-            builder.Services.AddHttpClient<ICouponRepository, CouponRepository>(s => s.BaseAddress =
-            new Uri(builder.Configuration["ServiceUrls:CouponAPI"]));
+
 
             builder.Services.AddAuthentication("Bearer")
                 .AddJwtBearer("Bearer", options =>
@@ -62,11 +62,11 @@ namespace GeekShopping.CartAPI
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
 
-
+            //rever swagger
 
             builder.Services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "GeekShopping.CartAPI", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "GeekShopping.OrderAPI", Version = "v1" });
                 c.EnableAnnotations();
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
@@ -98,8 +98,6 @@ namespace GeekShopping.CartAPI
 
             //fim copia cola
 
-
-
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -110,9 +108,6 @@ namespace GeekShopping.CartAPI
             }
 
             app.UseHttpsRedirection();
-            app.UseRouting();
-
-            app.UseAuthentication();
 
             app.UseAuthorization();
 

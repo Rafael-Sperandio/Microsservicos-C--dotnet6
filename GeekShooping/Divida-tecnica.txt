@@ -1,6 +1,14 @@
 fazer
+verificar se em OrderHeader o metodo AddOrderItems funciona
+        //TODO ver se funciona
+        order.AddOrderItems(dto.CartDetails);
+
+5 criar documentação para criar o docker com rabitMQ
+falta testar igual a aula 220
+
+feitas
 1 MessageCreated
-2 temAdm mudar nome
+2 temAdm mudar nome hasAdm
 3 verificar objeto CheckoutHeaderDto no envio do rabbit falta informação
 4 verificar metodo Checkout(CheckoutHeaderDto dto)  na classe CartController namespace GeekShopping.CartAPI.Controllers 
 4.1 o memso no envio para o metodo que faz a requisião  HttpPost("checkout")
@@ -9,5 +17,3 @@ fazer
             [HttpPost("checkout")]
             public async Task<ActionResult<CheckoutHeaderDto>> Checkout(CheckoutHeaderDto dto)
 
-
-5 criar documentação para criar o docker com rabitMQ

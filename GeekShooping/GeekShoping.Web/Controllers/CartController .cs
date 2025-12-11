@@ -40,24 +40,24 @@ namespace GeekShoping.Web.Controllers
         {
             var token = await HttpContext.GetTokenAsync("access_token");
 
-            //TODO: remover gambiara
-            if (model.CartDetails == null)
-            {
-                model.CartDetails = new List<CartDetailViewModel>();
-            }
-            if (model.CartHeader == null)
-            {
-                model.CartHeader = new CartHeaderViewModel();
-            }
+            //  Recarrega o carrinho completo (pois o POST NÃO entrega CartDetails)
+            var cart = await _cartService.GetCartByUserId(model.CartHeader.UserId, token);
 
-            var response = await _cartService.Checkout(model.CartHeader, token);
+            model.CartDetails = cart.CartDetails;
 
-            if (response != null)
+            var response = await _cartService.Checkout(model.CartHeader, token, model.CartDetails);
+            if (response != null &&  response.GetType()== typeof(string))
+            {
+                TempData["Error"] = response;
+                return RedirectToAction(nameof(Checkout));
+            }
+            else if (response != null)
             {
                 return RedirectToAction(nameof(Confirmation));
             }
             return View(model);
         }
+
 
         [HttpGet]
         public async Task<IActionResult> Confirmation()
@@ -71,14 +71,12 @@ namespace GeekShoping.Web.Controllers
         {
             var token = await HttpContext.GetTokenAsync("access_token");
             var userId = User.Claims.Where(u => u.Type == "sub")?.FirstOrDefault()?.Value;
-            if (model.CartDetails == null)
-            {
-                model.CartDetails = new List<CartDetailViewModel>();
-            }
-            if (model.CartHeader == null)
-            {
-                model.CartHeader = new CartHeaderViewModel();
-            }
+
+            //  Recarrega o carrinho completo (pois o POST NÃO entrega CartDetails)
+            var cart = await _cartService.GetCartByUserId(model.CartHeader.UserId, token);
+
+            model.CartDetails = cart.CartDetails;
+
 
             var response = await _cartService.ApplyCoupon(model, token);
 
@@ -96,14 +94,10 @@ namespace GeekShoping.Web.Controllers
             var token = await HttpContext.GetTokenAsync("access_token");
             var userId = User.Claims.Where(u => u.Type == "sub")?.FirstOrDefault()?.Value;
 
-            if (model.CartDetails == null)
-            {
-                model.CartDetails = new List<CartDetailViewModel>();
-            }
-            if (model.CartHeader == null)
-            {
-                model.CartHeader = new CartHeaderViewModel();
-            }
+            //  Recarrega o carrinho completo (pois o POST NÃO entrega CartDetails)
+            var cart = await _cartService.GetCartByUserId(model.CartHeader.UserId, token);
+            model.CartDetails = cart.CartDetails;
+
             var response = await _cartService.RemoveCoupon(userId, token);
 
             if (response)
